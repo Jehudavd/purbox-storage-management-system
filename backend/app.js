@@ -1,6 +1,5 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const multer = require("multer");
 const { sequelize, User, Category, Product } = require("./models");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
@@ -11,17 +10,6 @@ const PORT = process.env.PORT || 3000;
 require('dotenv').config(); // Load environment variables
 
 app.use(bodyParser.json());
-
-// Setup multer for file upload
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-const upload = multer({ storage });
 
 // Middleware for authentication
 const authenticateJWT = (req, res, next) => {
@@ -241,14 +229,6 @@ app.delete("/products/:id", authenticateJWT, addUserToRequest, async (req, res) 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
-});
-
-// Upload image
-app.post("/upload", authenticateJWT, upload.single("image"), (req, res) => {
-  if (!req.file) {
-    return res.status(400).json({ message: "Please upload a file" });
-  }
-  res.status(200).json({ message: "File uploaded successfully", file: req.file });
 });
 
 app.listen(PORT, async () => {
